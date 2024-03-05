@@ -1,19 +1,57 @@
-// const fs = require('fs/promises')
+import { Schema, model } from 'mongoose';
+import Joi from 'joi';
+import { handleDbErrors } from '../assets/handleDbErrors.js';
 
-const listContacts = async () => {}
+const contactSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Name is required!'],
+    },
+    email: {
+      type: String,
+      required: [true, 'E-mail is required!'],
+    },
+    phone: {
+      type: String,
+      required: [true, 'Phone number is required!'],
+    },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+      required: true,
+    },
+  },
+  { versionKey: false }
+);
 
-const getContactById = async (contactId) => {}
+contactSchema.post('save', handleDbErrors);
 
-const removeContact = async (contactId) => {}
+const addSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().required(),
+  phone: Joi.string().required(),
+  favorite: Joi.boolean(),
+});
 
-const addContact = async (body) => {}
+const updateContactSchema = Joi.object({
+  name: Joi.string().optional(),
+  email: Joi.string().optional(),
+  phone: Joi.string().optional(),
+});
 
-const updateContact = async (contactId, body) => {}
+const updateFavSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
 
-module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-}
+export const Contact = model('contact', contactSchema);
+
+export const schemas = {
+  addSchema,
+  updateContactSchema,
+  updateFavSchema,
+};
