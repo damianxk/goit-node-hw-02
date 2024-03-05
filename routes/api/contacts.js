@@ -1,25 +1,35 @@
-const express = require('express')
+import express from 'express';
+import {
+  listContacts,
+  getContactById,
+  addContact,
+  updateContact,
+  updateFavorite,
+  removeContact,
+} from '../../controllers/contactsMongodb.js';
+import { ctrlTask } from '../../assets/ctrlTask.js';
+import { schemas } from '../../models/contacts.js';
+import { validateBody } from '../../middleware/validateBody.js';
+import { validateId } from '../../middleware/validateId.js';
+import { authenticate } from '../../middleware/authenticate.js';
 
-const router = express.Router()
+export const contactsRouter = express.Router();
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-module.exports = router
+contactsRouter.get('/', authenticate, ctrlTask(listContacts));
+contactsRouter.get('/:contactId', authenticate, validateId, ctrlTask(getContactById));
+contactsRouter.post('/', authenticate, validateBody(schemas.addSchema), ctrlTask(addContact));
+contactsRouter.delete('/:contactId', authenticate, validateId, ctrlTask(removeContact));
+contactsRouter.put(
+  '/:contactId',
+  authenticate,
+  validateId,
+  validateBody(schemas.updateContactSchema),
+  ctrlTask(updateContact)
+);
+contactsRouter.patch(
+  '/:contactId',
+  authenticate,
+  validateId,
+  validateBody(schemas.updateFavSchema),
+  ctrlTask(updateFavorite)
+);
